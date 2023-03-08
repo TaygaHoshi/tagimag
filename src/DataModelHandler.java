@@ -1,4 +1,6 @@
+import java.io.File;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,11 +11,48 @@ import java.util.ArrayList;
 public class DataModelHandler {
 
     private Connection conn = null;
+    private String dbname;
+
+    public DataModelHandler() {
+
+        dbname = "tagimag.db";
+
+        if (checkDatabase(dbname)) {
+            createNewDatabase(dbname);
+        }
+
+    }
+
+    private boolean checkDatabase(String filename) {
+
+        File f = new File(filename);
+        return f.exists() && !f.isDirectory();
+
+    }
+
+    private boolean createNewDatabase(String fileName) {
+
+        String url = "jdbc:sqlite:" + fileName;
+
+        try (Connection conn = DriverManager.getConnection(url)) {
+            if (conn != null) {
+                DatabaseMetaData meta = conn.getMetaData();
+                System.out.println("The driver name is " + meta.getDriverName());
+                System.out.println("A new database has been created.");
+            }
+
+            return true;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return false;
+    }
 
     private boolean connect() {
         try {
             // db parameters
-            String url = "jdbc:sqlite:tagimag.db";
+            String url = "jdbc:sqlite:" + dbname;
             // create a connection to the database
             conn = DriverManager.getConnection(url);
             return true;
@@ -32,7 +71,7 @@ public class DataModelHandler {
         }
         return false;
     }
-    
+
     public ArrayList<String> getLibraryPaths() {
         ArrayList<String> paths = new ArrayList<String>();
 
@@ -41,9 +80,9 @@ public class DataModelHandler {
 
         try {
 
-            Statement stmt  = conn.createStatement();
-            ResultSet rs    = stmt.executeQuery(sql);
-           // loop through the result set
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            // loop through the result set
             while (rs.next()) {
                 paths.add(rs.getString("Path"));
             }
@@ -52,8 +91,6 @@ public class DataModelHandler {
             System.out.println(e.getMessage());
             disconnect();
         }
-
-
 
         return paths;
     }
@@ -65,10 +102,9 @@ public class DataModelHandler {
         try {
 
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            
+
             pstmt.setString(1, libraryPath);
             pstmt.executeUpdate();
-
 
             disconnect();
             return true;
@@ -76,7 +112,6 @@ public class DataModelHandler {
             System.out.println(e.getMessage());
             disconnect();
         }
-
 
         return false;
     }
@@ -91,7 +126,7 @@ public class DataModelHandler {
             pstmt.setString(1, file.path);
             pstmt.setString(2, file.name);
             pstmt.setString(3, file.creator);
-            //pstmt.setString(4, file.group);
+            // pstmt.setString(4, file.group);
             pstmt.executeUpdate();
 
             disconnect();
@@ -102,6 +137,6 @@ public class DataModelHandler {
         }
 
         return false;
-    } 
+    }
 
 }
