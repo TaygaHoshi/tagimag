@@ -5,6 +5,8 @@ public class Tagimag {
         // start controller
         TagController controller = new TagController();
         
-
+        // start gui
+        // Gui gui = new Gui(controller);
+        
     }
 }
