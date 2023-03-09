@@ -156,7 +156,7 @@ public class DataModelHandler {
         try {
             connect();
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(0, sql);
+            pstmt.setString(1, path);
 
 
             pstmt.executeUpdate();
@@ -167,6 +167,28 @@ public class DataModelHandler {
             disconnect();
         }
         
+        return false;
+    }
+
+
+    public boolean queryRemoveMatchingFiles(String path) {
+
+        String sql = "DELETE FROM files WHERE path LIKE ?";
+
+
+        try {
+            connect();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, "%"+path+"%");
+
+            pstmt.executeUpdate();
+            disconnect();
+            return true;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            disconnect();
+        }
+
         return false;
     }
 

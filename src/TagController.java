@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class TagController {
 
@@ -18,6 +19,10 @@ public class TagController {
         // initialize library scanner object
         scn = new LibraryScanner();
         
+        // add libraries
+        addLibrary(sample_lib_1);
+        addLibrary(sample_lib_2);
+
         // scan libraries
         ArrayList<FileItem> filesFromLibrary = scn.scanLibraries(db.getLibraryPaths());
 
@@ -26,6 +31,9 @@ public class TagController {
             addFile(item);
         }
 
+        //Scanner s = new Scanner(System.in);
+        //s.nextLine();
+        //removeLibrary(sample_lib_1);
     }
     
 
@@ -34,6 +42,9 @@ public class TagController {
         try {
             db.queryRemoveLibrary(path);
             System.out.println("Removed library: " + path);
+
+            db.queryRemoveMatchingFiles(path);
+            System.out.println("Removed files of library: " + path);
             return true;
         } catch (Exception e) {
             System.out.println("Failed to remove a library: " + path);
