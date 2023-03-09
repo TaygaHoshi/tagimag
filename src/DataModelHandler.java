@@ -15,14 +15,13 @@ public class DataModelHandler {
     public DataModelHandler() {
         // build database
         dbname = "tagimag.db";
-        createNewDatabase();
     }
 
     private boolean createNewTables() {
         // creates tables
         
-        connect();
         try {
+            connect();
             String files_sql = "CREATE TABLE IF NOT EXISTS files (\n"
                                         + " id  INTEGER NOT NULL UNIQUE,\n"
                                         + " path    TEXT NOT NULL UNIQUE,\n"
@@ -56,7 +55,7 @@ public class DataModelHandler {
         return false;
     }
 
-    private boolean createNewDatabase() {
+    public boolean createNewDatabase() {
         // creates a new database
         String url = "jdbc:sqlite:" + dbname;
 
@@ -109,10 +108,10 @@ public class DataModelHandler {
         ArrayList<String> paths = new ArrayList<String>();
 
         String sql = "SELECT path FROM libraries";
-        connect();
+        
 
         try {
-
+            connect();
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
             // loop through the result set
@@ -151,12 +150,34 @@ public class DataModelHandler {
         return false;
     }
 
+    public boolean queryRemoveLibrary(String path) {
+        String sql = "DELETE FROM libraries WHERE path = ?";
+
+        try {
+            connect();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(0, sql);
+
+
+            pstmt.executeUpdate();
+            disconnect();
+            return true;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            disconnect();
+        }
+        
+        return false;
+    }
+
     public boolean queryAddFile(FileItem file) {
         // add a new file to the database (only happens on scanLibraries)
 
         String sql = "INSERT INTO files(path,filename,creator,creatorgroup) VALUES(?,?,?,?)";
-        connect();
+        
         try {
+            connect();
+
             PreparedStatement pstmt = conn.prepareStatement(sql);
 
             pstmt.setString(1, file.path);
@@ -174,5 +195,6 @@ public class DataModelHandler {
 
         return false;
     }
+
 
 }
